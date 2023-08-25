@@ -1,0 +1,69 @@
+1- generating the object files of UART.c & APP.c 
+// (without the debugging section by passing "-g" command)
+
+arm-none-eabi-gcc.exe -c -mcpu=arm926ej-s UART.c -o UART.o
+arm-none-eabi-gcc.exe -c -mcpu=arm926ej-s APP.c -o APP.o
+
+2- Viewing the Sections in the Object files (by passing "-h" to objdump.exe)
+
+arm-none-eabi-objdump.exe -h UART.o
+arm-none-eabi-objdump.exe -h APP.o
+
+3- Creating a very simple Startup.s
+// in this file we initialized the stack pointer by the stack_top symbol which will be created in the linker_script file
+// then jumping to the main function, however, we can change the main function to any other name ... and simply the startup can jump to it instead of main
+
+4- generating the object file of startup.s (by passing it to assembler "as.exe")
+
+arm-none-eabi-as.exe -mcpu=arm926ej-s startup.s -o startup.o
+
+
+5- viewing the Sections of startup.o
+
+arm-none-eabi-objdump.exe -h startup.o
+
+6- creating the Linker Script (.ld)
+// in this filewe use only one memory & set our stack_top address by the "." symbol (location counter)
+
+7- Linking our all object files (by passing it to linker "ld.exe" & "-T")
+
+arm-none-eabi-ld.exe -T linker_script.ld APP.o UART.o startup.o -o learn-in-depth.elf -Map=Map_file.map
+
+
+8- Viewing Symbols of all files ("nm.exe")
+
+arm-none-eabi-nm.exe APP.o
+arm-none-eabi-nm.exe UART.o
+arm-none-eabi-nm.exe startup.o
+
+
+9- Finally Viewing all the Combined Symbols in the .elf file
+
+arm-none-eabi-nm.exe learn-in-depth.elf
+
+
+10- Viewing the Combined Sections in the .elf file
+
+arm-none-eabi-objdump.exe -h learn-in-depth.elf
+
+
+11- Finally Generating the Binary File to Burn on our Microcontroller (using utility "objcopy.exe")
+
+arm-none-eabi-objcopy.exe -O binary learn-in-depth.elf learn-in-depth.bin
+
+12- Running our Binary File using the QEMU Emulator (showing our string output)
+
+qemu-system-arm.exe -M versatilepb -m 128M -nographic -kernel learn-in-depth.bin
+
+OUTPUT ===> learn-in-depth:<Youssef Samy>
+
+
+
+
+
+
+
+
+
+
+
