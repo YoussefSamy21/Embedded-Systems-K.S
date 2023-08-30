@@ -1,0 +1,33 @@
+# @copyrights Youssef Samy
+CC = arm-none-eabi-
+CFLAGS = -mcpu=arm926ej-s -g   #g for debugging information if desired 
+INCS = -I .
+LIBS = 			# if required to Link with another libraries
+SRC = $(wildcard *.c)
+OBJ = $(SRC:.c=.o)
+AS = $(wildcard *.s)
+ASOBJ = $(AS:.s=.o)
+project_name = learn-in-depth
+
+
+all: $(project_name).bin
+	@echo "=====> Building is Done <===== "
+
+%.o: %.s  # for the startup.s file
+	$(CC)as.exe $(CFLAGS) $< -o $@
+
+%.o: %.c
+	$(CC)gcc.exe $(CFLAGS) $(INCS) -c $< -o $@
+
+$(project_name).elf : $(OBJ) $(ASOBJ) # linking stage
+	$(CC)ld.exe -T linker_script.ld $(LIBS) $(OBJ) $(ASOBJ) -o $@ -Map=Map_file.map
+
+$(project_name).bin: $(project_name).elf
+	$(CC)objcopy.exe -O binary $< $@
+
+clean_all:
+		rm *.o *.elf *.bin
+
+clean:
+	   rm *.elf *.bin
+
