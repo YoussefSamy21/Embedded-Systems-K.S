@@ -1,6 +1,6 @@
 # @copyrights Youssef Samy
 CC = arm-none-eabi-
-CFLAGS = -mcpu=arm926ej-s
+CFLAGS = -mcpu=cortex-m3 -gdwarf-2 -g  #g & gdwarf for debugging information if desired , gdwarf also needed for debugging in proteus
 INCS = -I .
 # if required to Link with another libraries
 LIBS = 

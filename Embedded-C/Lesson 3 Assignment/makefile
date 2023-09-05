@@ -1,6 +1,6 @@
 # @copyrights Youssef Samy
 CC = arm-none-eabi-
-CFLAGS = -mcpu=cortex-m3 -gdwarf-2 -g  #g & gdwarf for debugging information if desired 
+CFLAGS = -mcpu=cortex-m3 -gdwarf-2 -g  #g & gdwarf for debugging information if desired , gdwarf also needed for debugging in proteus
 INCS = -I .
 LIBS = 			# if required to Link with another libraries
 SRC = $(wildcard *.c)
