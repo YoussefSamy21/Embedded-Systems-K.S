@@ -10,11 +10,11 @@
 
 typedef union
 {
-	vint32_t all_fields;
+	vuint32_t all_fields;
 	struct
 	{
-		vint32_t reserved:13;
-		vint32_t pin13:1;
+		vuint32_t reserved:13;
+		vuint32_t pin13:1;
 
 	}pin;
 
