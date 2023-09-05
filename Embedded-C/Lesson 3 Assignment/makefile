@@ -1,6 +1,6 @@
 # @copyrights Youssef Samy
 CC = arm-none-eabi-
-CFLAGS = -mcpu=arm926ej-s -g   #g for debugging information if desired 
+CFLAGS = -mcpu=cortex-m4 -gdwarf-2 -g  #g & gdwarf for debugging information if desired 
 INCS = -I .
 LIBS = 			# if required to Link with another libraries
 SRC = $(wildcard *.c)
