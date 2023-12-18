@@ -1,0 +1,15 @@
+ATMega32_SPI_Driver/DIO/DIO_INTERFACE.o \
+  ATMega32_SPI_Driver/DIO/DIO_INTERFACE.o:  \
+ ../ATMega32_SPI_Driver/DIO/DIO_INTERFACE.c \
+  ../ATMega32_SPI_Driver/DIO/DIO_INTERFACE.h \
+  ../ATMega32_SPI_Driver/DIO/STD_TYPES.h \
+  ../ATMega32_SPI_Driver/DIO/STD_LIBRARY.h \
+  ../ATMega32_SPI_Driver/DIO/DIO_REGISTERMAP.h
+
+../ATMega32_SPI_Driver/DIO/DIO_INTERFACE.h:
+
+../ATMega32_SPI_Driver/DIO/STD_TYPES.h:
+
+../ATMega32_SPI_Driver/DIO/STD_LIBRARY.h:
+
+../ATMega32_SPI_Driver/DIO/DIO_REGISTERMAP.h:
