@@ -1,0 +1,858 @@
+
+ATMega32_I2C_Driver.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000444  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .stab         00000924  00000000  00000000  00000498  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  2 .stabstr      000005d3  00000000  00000000  00000dbc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   8:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  10:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  14:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  18:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  1c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  20:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  24:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  28:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  2c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  30:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  34:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  38:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  3c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  40:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  44:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  48:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  4c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  50:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+  60:	0e 94 1b 02 	call	0x436	; 0x436 <main>
+  64:	0c 94 20 02 	jmp	0x440	; 0x440 <_exit>
+
+00000068 <__bad_interrupt>:
+  68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000006c <TWI_voidInitMaster>:
+
+#include "I2C_interface.h"
+
+/*Set master address to 0 if master will not be addressed*/
+void TWI_voidInitMaster(uint8 Copy_u8Address)
+{
+  6c:	df 93       	push	r29
+  6e:	cf 93       	push	r28
+  70:	0f 92       	push	r0
+  72:	cd b7       	in	r28, 0x3d	; 61
+  74:	de b7       	in	r29, 0x3e	; 62
+  76:	89 83       	std	Y+1, r24	; 0x01
+
+	/*Set SCL frequency to 400kHz, with 8Mhz system frequency*/
+	/*1- Set TWBR to 2 => [0:255] */
+
+	TWBR= (uint8) (((F_CPU/SCL_Clock)-16) / (2*TWI_PRESCALLER));
+  78:	e0 e2       	ldi	r30, 0x20	; 32
+  7a:	f0 e0       	ldi	r31, 0x00	; 0
+  7c:	82 e0       	ldi	r24, 0x02	; 2
+  7e:	80 83       	st	Z, r24
+
+	/* Set the prescaler */
+	/*2- Clear the prescaler bits (TWPS)*/
+	if (TWI_PRESCALLER==PRESCALLER_BY_1)
+	{
+		TWSR=0;
+  80:	e1 e2       	ldi	r30, 0x21	; 33
+  82:	f0 e0       	ldi	r31, 0x00	; 0
+  84:	10 82       	st	Z, r1
+	{
+		TWSR=3;
+	}
+
+	/*Check if the master node will be addressed & set the Master Address */
+	if(Copy_u8Address != 0)
+  86:	89 81       	ldd	r24, Y+1	; 0x01
+  88:	88 23       	and	r24, r24
+  8a:	29 f0       	breq	.+10     	; 0x96 <TWI_voidInitMaster+0x2a>
+	{
+		/*Set the required address in the 7 MSB of TWAR*/
+		TWAR = Copy_u8Address<<1;
+  8c:	e2 e2       	ldi	r30, 0x22	; 34
+  8e:	f0 e0       	ldi	r31, 0x00	; 0
+  90:	89 81       	ldd	r24, Y+1	; 0x01
+  92:	88 0f       	add	r24, r24
+  94:	80 83       	st	Z, r24
+	}
+
+	/************** Enable *******************/
+
+	/*Enable Acknowledge bit*/
+	SET_BIT(TWCR,TWCR_TWEA);
+  96:	a6 e5       	ldi	r26, 0x56	; 86
+  98:	b0 e0       	ldi	r27, 0x00	; 0
+  9a:	e6 e5       	ldi	r30, 0x56	; 86
+  9c:	f0 e0       	ldi	r31, 0x00	; 0
+  9e:	80 81       	ld	r24, Z
+  a0:	80 64       	ori	r24, 0x40	; 64
+  a2:	8c 93       	st	X, r24
+
+	/*Enable TWI Peripheral*/
+	SET_BIT(TWCR,TWCR_TWEN);
+  a4:	a6 e5       	ldi	r26, 0x56	; 86
+  a6:	b0 e0       	ldi	r27, 0x00	; 0
+  a8:	e6 e5       	ldi	r30, 0x56	; 86
+  aa:	f0 e0       	ldi	r31, 0x00	; 0
+  ac:	80 81       	ld	r24, Z
+  ae:	84 60       	ori	r24, 0x04	; 4
+  b0:	8c 93       	st	X, r24
+}
+  b2:	0f 90       	pop	r0
+  b4:	cf 91       	pop	r28
+  b6:	df 91       	pop	r29
+  b8:	08 95       	ret
+
+000000ba <TWI_voidInitSlave>:
+
+void TWI_voidInitSlave(uint8 Copy_u8Address)
+{
+  ba:	df 93       	push	r29
+  bc:	cf 93       	push	r28
+  be:	0f 92       	push	r0
+  c0:	cd b7       	in	r28, 0x3d	; 61
+  c2:	de b7       	in	r29, 0x3e	; 62
+  c4:	89 83       	std	Y+1, r24	; 0x01
+	/*Set the slave address*/
+	TWAR = Copy_u8Address<<1;
+  c6:	e2 e2       	ldi	r30, 0x22	; 34
+  c8:	f0 e0       	ldi	r31, 0x00	; 0
+  ca:	89 81       	ldd	r24, Y+1	; 0x01
+  cc:	88 0f       	add	r24, r24
+  ce:	80 83       	st	Z, r24
+
+	/************** Enable *******************/
+
+	/*Enable Acknowledge bit*/
+	SET_BIT(TWCR,TWCR_TWEA);
+  d0:	a6 e5       	ldi	r26, 0x56	; 86
+  d2:	b0 e0       	ldi	r27, 0x00	; 0
+  d4:	e6 e5       	ldi	r30, 0x56	; 86
+  d6:	f0 e0       	ldi	r31, 0x00	; 0
+  d8:	80 81       	ld	r24, Z
+  da:	80 64       	ori	r24, 0x40	; 64
+  dc:	8c 93       	st	X, r24
+
+	/*Enable TWI*/
+	SET_BIT(TWCR,TWCR_TWEN);
+  de:	a6 e5       	ldi	r26, 0x56	; 86
+  e0:	b0 e0       	ldi	r27, 0x00	; 0
+  e2:	e6 e5       	ldi	r30, 0x56	; 86
+  e4:	f0 e0       	ldi	r31, 0x00	; 0
+  e6:	80 81       	ld	r24, Z
+  e8:	84 60       	ori	r24, 0x04	; 4
+  ea:	8c 93       	st	X, r24
+}
+  ec:	0f 90       	pop	r0
+  ee:	cf 91       	pop	r28
+  f0:	df 91       	pop	r29
+  f2:	08 95       	ret
+
+000000f4 <TWI_SendStartCondition>:
+
+TWI_ErrStatus TWI_SendStartCondition(void)
+{
+  f4:	df 93       	push	r29
+  f6:	cf 93       	push	r28
+  f8:	0f 92       	push	r0
+  fa:	cd b7       	in	r28, 0x3d	; 61
+  fc:	de b7       	in	r29, 0x3e	; 62
+	TWI_ErrStatus Local_Error= NoError;
+  fe:	19 82       	std	Y+1, r1	; 0x01
+
+
+	/*Send start condition*/
+	SET_BIT(TWCR, TWCR_TWSTA);
+ 100:	a6 e5       	ldi	r26, 0x56	; 86
+ 102:	b0 e0       	ldi	r27, 0x00	; 0
+ 104:	e6 e5       	ldi	r30, 0x56	; 86
+ 106:	f0 e0       	ldi	r31, 0x00	; 0
+ 108:	80 81       	ld	r24, Z
+ 10a:	80 62       	ori	r24, 0x20	; 32
+ 10c:	8c 93       	st	X, r24
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 10e:	a6 e5       	ldi	r26, 0x56	; 86
+ 110:	b0 e0       	ldi	r27, 0x00	; 0
+ 112:	e6 e5       	ldi	r30, 0x56	; 86
+ 114:	f0 e0       	ldi	r31, 0x00	; 0
+ 116:	80 81       	ld	r24, Z
+ 118:	80 68       	ori	r24, 0x80	; 128
+ 11a:	8c 93       	st	X, r24
+	Hint : we could use
+	TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWSTA);
+	 */
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 11c:	e6 e5       	ldi	r30, 0x56	; 86
+ 11e:	f0 e0       	ldi	r31, 0x00	; 0
+ 120:	80 81       	ld	r24, Z
+ 122:	88 23       	and	r24, r24
+ 124:	dc f7       	brge	.-10     	; 0x11c <TWI_SendStartCondition+0x28>
+
+	/*Check the operation status (Bit Masking) */
+	if((TWSR & 0xF8) != START_ACK )
+ 126:	e1 e2       	ldi	r30, 0x21	; 33
+ 128:	f0 e0       	ldi	r31, 0x00	; 0
+ 12a:	80 81       	ld	r24, Z
+ 12c:	88 2f       	mov	r24, r24
+ 12e:	90 e0       	ldi	r25, 0x00	; 0
+ 130:	88 7f       	andi	r24, 0xF8	; 248
+ 132:	90 70       	andi	r25, 0x00	; 0
+ 134:	88 30       	cpi	r24, 0x08	; 8
+ 136:	91 05       	cpc	r25, r1
+ 138:	11 f0       	breq	.+4      	; 0x13e <TWI_SendStartCondition+0x4a>
+	{
+		Local_Error = StartConditionErr;
+ 13a:	81 e0       	ldi	r24, 0x01	; 1
+ 13c:	89 83       	std	Y+1, r24	; 0x01
+	else
+	{
+		/*Do nothing*/
+	}
+
+	return Local_Error;
+ 13e:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 140:	0f 90       	pop	r0
+ 142:	cf 91       	pop	r28
+ 144:	df 91       	pop	r29
+ 146:	08 95       	ret
+
+00000148 <TWI_SendRepeatedStart>:
+
+TWI_ErrStatus TWI_SendRepeatedStart(void)
+{
+ 148:	df 93       	push	r29
+ 14a:	cf 93       	push	r28
+ 14c:	0f 92       	push	r0
+ 14e:	cd b7       	in	r28, 0x3d	; 61
+ 150:	de b7       	in	r29, 0x3e	; 62
+	TWI_ErrStatus Local_Error= NoError;
+ 152:	19 82       	std	Y+1, r1	; 0x01
+
+	/*Send start condition*/
+	SET_BIT(TWCR, TWCR_TWSTA);
+ 154:	a6 e5       	ldi	r26, 0x56	; 86
+ 156:	b0 e0       	ldi	r27, 0x00	; 0
+ 158:	e6 e5       	ldi	r30, 0x56	; 86
+ 15a:	f0 e0       	ldi	r31, 0x00	; 0
+ 15c:	80 81       	ld	r24, Z
+ 15e:	80 62       	ori	r24, 0x20	; 32
+ 160:	8c 93       	st	X, r24
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 162:	a6 e5       	ldi	r26, 0x56	; 86
+ 164:	b0 e0       	ldi	r27, 0x00	; 0
+ 166:	e6 e5       	ldi	r30, 0x56	; 86
+ 168:	f0 e0       	ldi	r31, 0x00	; 0
+ 16a:	80 81       	ld	r24, Z
+ 16c:	80 68       	ori	r24, 0x80	; 128
+ 16e:	8c 93       	st	X, r24
+	TWCR=(1<<TWINT)|(1<<TWEN)|(1<<TWSTA);
+	 */
+
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 170:	e6 e5       	ldi	r30, 0x56	; 86
+ 172:	f0 e0       	ldi	r31, 0x00	; 0
+ 174:	80 81       	ld	r24, Z
+ 176:	88 23       	and	r24, r24
+ 178:	dc f7       	brge	.-10     	; 0x170 <TWI_SendRepeatedStart+0x28>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) != REP_START_ACK )
+ 17a:	e1 e2       	ldi	r30, 0x21	; 33
+ 17c:	f0 e0       	ldi	r31, 0x00	; 0
+ 17e:	80 81       	ld	r24, Z
+ 180:	88 2f       	mov	r24, r24
+ 182:	90 e0       	ldi	r25, 0x00	; 0
+ 184:	88 7f       	andi	r24, 0xF8	; 248
+ 186:	90 70       	andi	r25, 0x00	; 0
+ 188:	80 31       	cpi	r24, 0x10	; 16
+ 18a:	91 05       	cpc	r25, r1
+ 18c:	11 f0       	breq	.+4      	; 0x192 <TWI_SendRepeatedStart+0x4a>
+	{
+		Local_Error = RepeatedStartError;
+ 18e:	82 e0       	ldi	r24, 0x02	; 2
+ 190:	89 83       	std	Y+1, r24	; 0x01
+	else
+	{
+		/*Do nothing*/
+	}
+
+	return Local_Error;
+ 192:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 194:	0f 90       	pop	r0
+ 196:	cf 91       	pop	r28
+ 198:	df 91       	pop	r29
+ 19a:	08 95       	ret
+
+0000019c <TWI_SendSlaveAddressWithWrite>:
+
+TWI_ErrStatus TWI_SendSlaveAddressWithWrite(uint8 Copy_u8SlaveAddress)
+{
+ 19c:	df 93       	push	r29
+ 19e:	cf 93       	push	r28
+ 1a0:	00 d0       	rcall	.+0      	; 0x1a2 <TWI_SendSlaveAddressWithWrite+0x6>
+ 1a2:	cd b7       	in	r28, 0x3d	; 61
+ 1a4:	de b7       	in	r29, 0x3e	; 62
+ 1a6:	8a 83       	std	Y+2, r24	; 0x02
+	TWI_ErrStatus Local_Error= NoError;
+ 1a8:	19 82       	std	Y+1, r1	; 0x01
+
+	/*send the 7bit slave address to the bus*/
+	TWDR = (Copy_u8SlaveAddress<<1) ;
+ 1aa:	e3 e2       	ldi	r30, 0x23	; 35
+ 1ac:	f0 e0       	ldi	r31, 0x00	; 0
+ 1ae:	8a 81       	ldd	r24, Y+2	; 0x02
+ 1b0:	88 0f       	add	r24, r24
+ 1b2:	80 83       	st	Z, r24
+	/*set the write request in the LSB in the data register*/
+	CLEAR_BIT(TWDR,0);
+ 1b4:	a3 e2       	ldi	r26, 0x23	; 35
+ 1b6:	b0 e0       	ldi	r27, 0x00	; 0
+ 1b8:	e3 e2       	ldi	r30, 0x23	; 35
+ 1ba:	f0 e0       	ldi	r31, 0x00	; 0
+ 1bc:	80 81       	ld	r24, Z
+ 1be:	8e 7f       	andi	r24, 0xFE	; 254
+ 1c0:	8c 93       	st	X, r24
+
+	/*Clear the start condition bit*/
+	CLEAR_BIT(TWCR,TWCR_TWSTA);
+ 1c2:	a6 e5       	ldi	r26, 0x56	; 86
+ 1c4:	b0 e0       	ldi	r27, 0x00	; 0
+ 1c6:	e6 e5       	ldi	r30, 0x56	; 86
+ 1c8:	f0 e0       	ldi	r31, 0x00	; 0
+ 1ca:	80 81       	ld	r24, Z
+ 1cc:	8f 7d       	andi	r24, 0xDF	; 223
+ 1ce:	8c 93       	st	X, r24
+
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 1d0:	a6 e5       	ldi	r26, 0x56	; 86
+ 1d2:	b0 e0       	ldi	r27, 0x00	; 0
+ 1d4:	e6 e5       	ldi	r30, 0x56	; 86
+ 1d6:	f0 e0       	ldi	r31, 0x00	; 0
+ 1d8:	80 81       	ld	r24, Z
+ 1da:	80 68       	ori	r24, 0x80	; 128
+ 1dc:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 1de:	e6 e5       	ldi	r30, 0x56	; 86
+ 1e0:	f0 e0       	ldi	r31, 0x00	; 0
+ 1e2:	80 81       	ld	r24, Z
+ 1e4:	88 23       	and	r24, r24
+ 1e6:	dc f7       	brge	.-10     	; 0x1de <TWI_SendSlaveAddressWithWrite+0x42>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) != SLAVE_ADD_AND_WR_ACK )
+ 1e8:	e1 e2       	ldi	r30, 0x21	; 33
+ 1ea:	f0 e0       	ldi	r31, 0x00	; 0
+ 1ec:	80 81       	ld	r24, Z
+ 1ee:	88 2f       	mov	r24, r24
+ 1f0:	90 e0       	ldi	r25, 0x00	; 0
+ 1f2:	88 7f       	andi	r24, 0xF8	; 248
+ 1f4:	90 70       	andi	r25, 0x00	; 0
+ 1f6:	88 31       	cpi	r24, 0x18	; 24
+ 1f8:	91 05       	cpc	r25, r1
+ 1fa:	11 f0       	breq	.+4      	; 0x200 <TWI_SendSlaveAddressWithWrite+0x64>
+	{
+		Local_Error = SlaveAddressWithWriteErr;
+ 1fc:	83 e0       	ldi	r24, 0x03	; 3
+ 1fe:	89 83       	std	Y+1, r24	; 0x01
+	else
+	{
+		/*Do nothing*/
+	}
+
+	return Local_Error;
+ 200:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 202:	0f 90       	pop	r0
+ 204:	0f 90       	pop	r0
+ 206:	cf 91       	pop	r28
+ 208:	df 91       	pop	r29
+ 20a:	08 95       	ret
+
+0000020c <TWI_SendSlaveAddressWithRead>:
+
+TWI_ErrStatus TWI_SendSlaveAddressWithRead(uint8 Copy_u8SlaveAddress)
+{
+ 20c:	df 93       	push	r29
+ 20e:	cf 93       	push	r28
+ 210:	00 d0       	rcall	.+0      	; 0x212 <TWI_SendSlaveAddressWithRead+0x6>
+ 212:	cd b7       	in	r28, 0x3d	; 61
+ 214:	de b7       	in	r29, 0x3e	; 62
+ 216:	8a 83       	std	Y+2, r24	; 0x02
+	TWI_ErrStatus Local_Error= NoError;
+ 218:	19 82       	std	Y+1, r1	; 0x01
+
+	/*send the 7bit slave address to the bus*/
+	TWDR = Copy_u8SlaveAddress <<1;
+ 21a:	e3 e2       	ldi	r30, 0x23	; 35
+ 21c:	f0 e0       	ldi	r31, 0x00	; 0
+ 21e:	8a 81       	ldd	r24, Y+2	; 0x02
+ 220:	88 0f       	add	r24, r24
+ 222:	80 83       	st	Z, r24
+	/*set the read request in the LSB in the data register*/
+	SET_BIT(TWDR,0);
+ 224:	a3 e2       	ldi	r26, 0x23	; 35
+ 226:	b0 e0       	ldi	r27, 0x00	; 0
+ 228:	e3 e2       	ldi	r30, 0x23	; 35
+ 22a:	f0 e0       	ldi	r31, 0x00	; 0
+ 22c:	80 81       	ld	r24, Z
+ 22e:	81 60       	ori	r24, 0x01	; 1
+ 230:	8c 93       	st	X, r24
+
+	/*Clear the start condition bit*/
+	CLEAR_BIT(TWCR,TWCR_TWSTA);
+ 232:	a6 e5       	ldi	r26, 0x56	; 86
+ 234:	b0 e0       	ldi	r27, 0x00	; 0
+ 236:	e6 e5       	ldi	r30, 0x56	; 86
+ 238:	f0 e0       	ldi	r31, 0x00	; 0
+ 23a:	80 81       	ld	r24, Z
+ 23c:	8f 7d       	andi	r24, 0xDF	; 223
+ 23e:	8c 93       	st	X, r24
+
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 240:	a6 e5       	ldi	r26, 0x56	; 86
+ 242:	b0 e0       	ldi	r27, 0x00	; 0
+ 244:	e6 e5       	ldi	r30, 0x56	; 86
+ 246:	f0 e0       	ldi	r31, 0x00	; 0
+ 248:	80 81       	ld	r24, Z
+ 24a:	80 68       	ori	r24, 0x80	; 128
+ 24c:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 24e:	e6 e5       	ldi	r30, 0x56	; 86
+ 250:	f0 e0       	ldi	r31, 0x00	; 0
+ 252:	80 81       	ld	r24, Z
+ 254:	88 23       	and	r24, r24
+ 256:	dc f7       	brge	.-10     	; 0x24e <TWI_SendSlaveAddressWithRead+0x42>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) != SLAVE_ADD_AND_RD_ACK )
+ 258:	e1 e2       	ldi	r30, 0x21	; 33
+ 25a:	f0 e0       	ldi	r31, 0x00	; 0
+ 25c:	80 81       	ld	r24, Z
+ 25e:	88 2f       	mov	r24, r24
+ 260:	90 e0       	ldi	r25, 0x00	; 0
+ 262:	88 7f       	andi	r24, 0xF8	; 248
+ 264:	90 70       	andi	r25, 0x00	; 0
+ 266:	80 34       	cpi	r24, 0x40	; 64
+ 268:	91 05       	cpc	r25, r1
+ 26a:	11 f0       	breq	.+4      	; 0x270 <TWI_SendSlaveAddressWithRead+0x64>
+	{
+		Local_Error = SlaveAddressWithReadErr;
+ 26c:	84 e0       	ldi	r24, 0x04	; 4
+ 26e:	89 83       	std	Y+1, r24	; 0x01
+	else
+	{
+		/*Do nothing*/
+	}
+
+	return Local_Error;
+ 270:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 272:	0f 90       	pop	r0
+ 274:	0f 90       	pop	r0
+ 276:	cf 91       	pop	r28
+ 278:	df 91       	pop	r29
+ 27a:	08 95       	ret
+
+0000027c <TWI_MasterWriteDataByte>:
+
+TWI_ErrStatus TWI_MasterWriteDataByte(uint8 Copy_u8DataByte)
+{
+ 27c:	df 93       	push	r29
+ 27e:	cf 93       	push	r28
+ 280:	00 d0       	rcall	.+0      	; 0x282 <TWI_MasterWriteDataByte+0x6>
+ 282:	cd b7       	in	r28, 0x3d	; 61
+ 284:	de b7       	in	r29, 0x3e	; 62
+ 286:	8a 83       	std	Y+2, r24	; 0x02
+	TWI_ErrStatus Local_Error= NoError;
+ 288:	19 82       	std	Y+1, r1	; 0x01
+
+	/*Write the data byte on the bus*/
+	TWDR = Copy_u8DataByte;
+ 28a:	e3 e2       	ldi	r30, 0x23	; 35
+ 28c:	f0 e0       	ldi	r31, 0x00	; 0
+ 28e:	8a 81       	ldd	r24, Y+2	; 0x02
+ 290:	80 83       	st	Z, r24
+
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 292:	a6 e5       	ldi	r26, 0x56	; 86
+ 294:	b0 e0       	ldi	r27, 0x00	; 0
+ 296:	e6 e5       	ldi	r30, 0x56	; 86
+ 298:	f0 e0       	ldi	r31, 0x00	; 0
+ 29a:	80 81       	ld	r24, Z
+ 29c:	80 68       	ori	r24, 0x80	; 128
+ 29e:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 2a0:	e6 e5       	ldi	r30, 0x56	; 86
+ 2a2:	f0 e0       	ldi	r31, 0x00	; 0
+ 2a4:	80 81       	ld	r24, Z
+ 2a6:	88 23       	and	r24, r24
+ 2a8:	dc f7       	brge	.-10     	; 0x2a0 <TWI_MasterWriteDataByte+0x24>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) !=  MSTR_WR_BYTE_ACK)
+ 2aa:	e1 e2       	ldi	r30, 0x21	; 33
+ 2ac:	f0 e0       	ldi	r31, 0x00	; 0
+ 2ae:	80 81       	ld	r24, Z
+ 2b0:	88 2f       	mov	r24, r24
+ 2b2:	90 e0       	ldi	r25, 0x00	; 0
+ 2b4:	88 7f       	andi	r24, 0xF8	; 248
+ 2b6:	90 70       	andi	r25, 0x00	; 0
+ 2b8:	88 32       	cpi	r24, 0x28	; 40
+ 2ba:	91 05       	cpc	r25, r1
+ 2bc:	11 f0       	breq	.+4      	; 0x2c2 <TWI_MasterWriteDataByte+0x46>
+	{
+		Local_Error = MasterWriteByteErr;
+ 2be:	85 e0       	ldi	r24, 0x05	; 5
+ 2c0:	89 83       	std	Y+1, r24	; 0x01
+	else
+	{
+		/*Do nothing*/
+	}
+
+	return Local_Error;
+ 2c2:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 2c4:	0f 90       	pop	r0
+ 2c6:	0f 90       	pop	r0
+ 2c8:	cf 91       	pop	r28
+ 2ca:	df 91       	pop	r29
+ 2cc:	08 95       	ret
+
+000002ce <TWI_MasterReadDataByte>:
+
+TWI_ErrStatus TWI_MasterReadDataByte(uint8* Copy_pu8DataByte)
+{
+ 2ce:	df 93       	push	r29
+ 2d0:	cf 93       	push	r28
+ 2d2:	00 d0       	rcall	.+0      	; 0x2d4 <TWI_MasterReadDataByte+0x6>
+ 2d4:	0f 92       	push	r0
+ 2d6:	cd b7       	in	r28, 0x3d	; 61
+ 2d8:	de b7       	in	r29, 0x3e	; 62
+ 2da:	9b 83       	std	Y+3, r25	; 0x03
+ 2dc:	8a 83       	std	Y+2, r24	; 0x02
+	TWI_ErrStatus Local_Error= NoError;
+ 2de:	19 82       	std	Y+1, r1	; 0x01
+
+	/*Clear the interrupt flag to allow the slave send the data*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 2e0:	a6 e5       	ldi	r26, 0x56	; 86
+ 2e2:	b0 e0       	ldi	r27, 0x00	; 0
+ 2e4:	e6 e5       	ldi	r30, 0x56	; 86
+ 2e6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2e8:	80 81       	ld	r24, Z
+ 2ea:	80 68       	ori	r24, 0x80	; 128
+ 2ec:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 2ee:	e6 e5       	ldi	r30, 0x56	; 86
+ 2f0:	f0 e0       	ldi	r31, 0x00	; 0
+ 2f2:	80 81       	ld	r24, Z
+ 2f4:	88 23       	and	r24, r24
+ 2f6:	dc f7       	brge	.-10     	; 0x2ee <TWI_MasterReadDataByte+0x20>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) !=  MSTR_RD_BYTE_WITH_ACK)
+ 2f8:	e1 e2       	ldi	r30, 0x21	; 33
+ 2fa:	f0 e0       	ldi	r31, 0x00	; 0
+ 2fc:	80 81       	ld	r24, Z
+ 2fe:	88 2f       	mov	r24, r24
+ 300:	90 e0       	ldi	r25, 0x00	; 0
+ 302:	88 7f       	andi	r24, 0xF8	; 248
+ 304:	90 70       	andi	r25, 0x00	; 0
+ 306:	80 35       	cpi	r24, 0x50	; 80
+ 308:	91 05       	cpc	r25, r1
+ 30a:	19 f0       	breq	.+6      	; 0x312 <TWI_MasterReadDataByte+0x44>
+	{
+		Local_Error = MasterReadByteErr;
+ 30c:	86 e0       	ldi	r24, 0x06	; 6
+ 30e:	89 83       	std	Y+1, r24	; 0x01
+ 310:	06 c0       	rjmp	.+12     	; 0x31e <TWI_MasterReadDataByte+0x50>
+	}
+	else
+	{
+		/*Read the received data*/
+		*Copy_pu8DataByte = TWDR;
+ 312:	e3 e2       	ldi	r30, 0x23	; 35
+ 314:	f0 e0       	ldi	r31, 0x00	; 0
+ 316:	80 81       	ld	r24, Z
+ 318:	ea 81       	ldd	r30, Y+2	; 0x02
+ 31a:	fb 81       	ldd	r31, Y+3	; 0x03
+ 31c:	80 83       	st	Z, r24
+	}
+
+	return Local_Error;
+ 31e:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 320:	0f 90       	pop	r0
+ 322:	0f 90       	pop	r0
+ 324:	0f 90       	pop	r0
+ 326:	cf 91       	pop	r28
+ 328:	df 91       	pop	r29
+ 32a:	08 95       	ret
+
+0000032c <TWI_SlaveWriteDataByte>:
+
+TWI_ErrStatus TWI_SlaveWriteDataByte(uint8 Copy_u8DataByte)
+{
+ 32c:	df 93       	push	r29
+ 32e:	cf 93       	push	r28
+ 330:	00 d0       	rcall	.+0      	; 0x332 <TWI_SlaveWriteDataByte+0x6>
+ 332:	cd b7       	in	r28, 0x3d	; 61
+ 334:	de b7       	in	r29, 0x3e	; 62
+ 336:	8a 83       	std	Y+2, r24	; 0x02
+	TWI_ErrStatus Local_Error= NoError;
+ 338:	19 82       	std	Y+1, r1	; 0x01
+
+	/*Write the data byte on the bus*/
+	TWDR = Copy_u8DataByte;
+ 33a:	e3 e2       	ldi	r30, 0x23	; 35
+ 33c:	f0 e0       	ldi	r31, 0x00	; 0
+ 33e:	8a 81       	ldd	r24, Y+2	; 0x02
+ 340:	80 83       	st	Z, r24
+
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 342:	a6 e5       	ldi	r26, 0x56	; 86
+ 344:	b0 e0       	ldi	r27, 0x00	; 0
+ 346:	e6 e5       	ldi	r30, 0x56	; 86
+ 348:	f0 e0       	ldi	r31, 0x00	; 0
+ 34a:	80 81       	ld	r24, Z
+ 34c:	80 68       	ori	r24, 0x80	; 128
+ 34e:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 350:	e6 e5       	ldi	r30, 0x56	; 86
+ 352:	f0 e0       	ldi	r31, 0x00	; 0
+ 354:	80 81       	ld	r24, Z
+ 356:	88 23       	and	r24, r24
+ 358:	dc f7       	brge	.-10     	; 0x350 <TWI_SlaveWriteDataByte+0x24>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) !=  SLAVE_BYTE_TRANSMITTED)
+ 35a:	e1 e2       	ldi	r30, 0x21	; 33
+ 35c:	f0 e0       	ldi	r31, 0x00	; 0
+ 35e:	80 81       	ld	r24, Z
+ 360:	88 2f       	mov	r24, r24
+ 362:	90 e0       	ldi	r25, 0x00	; 0
+ 364:	88 7f       	andi	r24, 0xF8	; 248
+ 366:	90 70       	andi	r25, 0x00	; 0
+ 368:	88 3b       	cpi	r24, 0xB8	; 184
+ 36a:	91 05       	cpc	r25, r1
+ 36c:	11 f0       	breq	.+4      	; 0x372 <TWI_SlaveWriteDataByte+0x46>
+	{
+		Local_Error = SlaveWriteByteErr;
+ 36e:	87 e0       	ldi	r24, 0x07	; 7
+ 370:	89 83       	std	Y+1, r24	; 0x01
+	else
+	{
+		/*Do nothing*/
+	}
+
+	return Local_Error;
+ 372:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 374:	0f 90       	pop	r0
+ 376:	0f 90       	pop	r0
+ 378:	cf 91       	pop	r28
+ 37a:	df 91       	pop	r29
+ 37c:	08 95       	ret
+
+0000037e <TWI_SlaveReadDataByte>:
+
+TWI_ErrStatus TWI_SlaveReadDataByte(uint8* Copy_pu8DataByte)
+{
+ 37e:	df 93       	push	r29
+ 380:	cf 93       	push	r28
+ 382:	00 d0       	rcall	.+0      	; 0x384 <TWI_SlaveReadDataByte+0x6>
+ 384:	0f 92       	push	r0
+ 386:	cd b7       	in	r28, 0x3d	; 61
+ 388:	de b7       	in	r29, 0x3e	; 62
+ 38a:	9b 83       	std	Y+3, r25	; 0x03
+ 38c:	8a 83       	std	Y+2, r24	; 0x02
+	TWI_ErrStatus Local_Error= NoError;
+ 38e:	19 82       	std	Y+1, r1	; 0x01
+
+	SET_BIT(TWCR,TWCR_TWINT);
+ 390:	a6 e5       	ldi	r26, 0x56	; 86
+ 392:	b0 e0       	ldi	r27, 0x00	; 0
+ 394:	e6 e5       	ldi	r30, 0x56	; 86
+ 396:	f0 e0       	ldi	r31, 0x00	; 0
+ 398:	80 81       	ld	r24, Z
+ 39a:	80 68       	ori	r24, 0x80	; 128
+ 39c:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 39e:	e6 e5       	ldi	r30, 0x56	; 86
+ 3a0:	f0 e0       	ldi	r31, 0x00	; 0
+ 3a2:	80 81       	ld	r24, Z
+ 3a4:	88 23       	and	r24, r24
+ 3a6:	dc f7       	brge	.-10     	; 0x39e <TWI_SlaveReadDataByte+0x20>
+
+	/*Check the operation status*/
+	if((TWSR & 0xF8) !=  SLAVE_ADD_RCVD_WR_REQ)
+ 3a8:	e1 e2       	ldi	r30, 0x21	; 33
+ 3aa:	f0 e0       	ldi	r31, 0x00	; 0
+ 3ac:	80 81       	ld	r24, Z
+ 3ae:	88 2f       	mov	r24, r24
+ 3b0:	90 e0       	ldi	r25, 0x00	; 0
+ 3b2:	88 7f       	andi	r24, 0xF8	; 248
+ 3b4:	90 70       	andi	r25, 0x00	; 0
+ 3b6:	80 36       	cpi	r24, 0x60	; 96
+ 3b8:	91 05       	cpc	r25, r1
+ 3ba:	11 f0       	breq	.+4      	; 0x3c0 <TWI_SlaveReadDataByte+0x42>
+	{
+		Local_Error = SlaveReadByteErr;
+ 3bc:	88 e0       	ldi	r24, 0x08	; 8
+ 3be:	89 83       	std	Y+1, r24	; 0x01
+	}
+
+	SET_BIT(TWCR,TWCR_TWINT);
+ 3c0:	a6 e5       	ldi	r26, 0x56	; 86
+ 3c2:	b0 e0       	ldi	r27, 0x00	; 0
+ 3c4:	e6 e5       	ldi	r30, 0x56	; 86
+ 3c6:	f0 e0       	ldi	r31, 0x00	; 0
+ 3c8:	80 81       	ld	r24, Z
+ 3ca:	80 68       	ori	r24, 0x80	; 128
+ 3cc:	8c 93       	st	X, r24
+
+	/*wait until the operation finishes and the flag is raised*/
+	while((GET_BIT(TWCR,TWCR_TWINT))==0);
+ 3ce:	e6 e5       	ldi	r30, 0x56	; 86
+ 3d0:	f0 e0       	ldi	r31, 0x00	; 0
+ 3d2:	80 81       	ld	r24, Z
+ 3d4:	88 23       	and	r24, r24
+ 3d6:	dc f7       	brge	.-10     	; 0x3ce <TWI_SlaveReadDataByte+0x50>
+	/*Check the operation status*/
+	if((TWSR & 0xF8) !=  SLAVE_DATA_RECEIVED)
+ 3d8:	e1 e2       	ldi	r30, 0x21	; 33
+ 3da:	f0 e0       	ldi	r31, 0x00	; 0
+ 3dc:	80 81       	ld	r24, Z
+ 3de:	88 2f       	mov	r24, r24
+ 3e0:	90 e0       	ldi	r25, 0x00	; 0
+ 3e2:	88 7f       	andi	r24, 0xF8	; 248
+ 3e4:	90 70       	andi	r25, 0x00	; 0
+ 3e6:	80 38       	cpi	r24, 0x80	; 128
+ 3e8:	91 05       	cpc	r25, r1
+ 3ea:	19 f0       	breq	.+6      	; 0x3f2 <TWI_SlaveReadDataByte+0x74>
+	{
+		Local_Error = SlaveReadByteErr;
+ 3ec:	88 e0       	ldi	r24, 0x08	; 8
+ 3ee:	89 83       	std	Y+1, r24	; 0x01
+ 3f0:	06 c0       	rjmp	.+12     	; 0x3fe <TWI_SlaveReadDataByte+0x80>
+	}
+	else
+	{
+		/*Read the received data*/
+		*Copy_pu8DataByte = TWDR;
+ 3f2:	e3 e2       	ldi	r30, 0x23	; 35
+ 3f4:	f0 e0       	ldi	r31, 0x00	; 0
+ 3f6:	80 81       	ld	r24, Z
+ 3f8:	ea 81       	ldd	r30, Y+2	; 0x02
+ 3fa:	fb 81       	ldd	r31, Y+3	; 0x03
+ 3fc:	80 83       	st	Z, r24
+	}
+
+	return Local_Error;
+ 3fe:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 400:	0f 90       	pop	r0
+ 402:	0f 90       	pop	r0
+ 404:	0f 90       	pop	r0
+ 406:	cf 91       	pop	r28
+ 408:	df 91       	pop	r29
+ 40a:	08 95       	ret
+
+0000040c <TWI_SendStopCondition>:
+
+
+void TWI_SendStopCondition(void)
+{
+ 40c:	df 93       	push	r29
+ 40e:	cf 93       	push	r28
+ 410:	cd b7       	in	r28, 0x3d	; 61
+ 412:	de b7       	in	r29, 0x3e	; 62
+	/*Sent a stop condition on the bus*/
+	SET_BIT(TWCR,TWCR_TWSTO);
+ 414:	a6 e5       	ldi	r26, 0x56	; 86
+ 416:	b0 e0       	ldi	r27, 0x00	; 0
+ 418:	e6 e5       	ldi	r30, 0x56	; 86
+ 41a:	f0 e0       	ldi	r31, 0x00	; 0
+ 41c:	80 81       	ld	r24, Z
+ 41e:	80 61       	ori	r24, 0x10	; 16
+ 420:	8c 93       	st	X, r24
+
+	/*Clear the interrupt flag to start the previous operation*/
+	SET_BIT(TWCR,TWCR_TWINT);
+ 422:	a6 e5       	ldi	r26, 0x56	; 86
+ 424:	b0 e0       	ldi	r27, 0x00	; 0
+ 426:	e6 e5       	ldi	r30, 0x56	; 86
+ 428:	f0 e0       	ldi	r31, 0x00	; 0
+ 42a:	80 81       	ld	r24, Z
+ 42c:	80 68       	ori	r24, 0x80	; 128
+ 42e:	8c 93       	st	X, r24
+
+}
+ 430:	cf 91       	pop	r28
+ 432:	df 91       	pop	r29
+ 434:	08 95       	ret
+
+00000436 <main>:
+ */
+
+#include "I2C_interface.h"
+
+void main()
+{
+ 436:	df 93       	push	r29
+ 438:	cf 93       	push	r28
+ 43a:	cd b7       	in	r28, 0x3d	; 61
+ 43c:	de b7       	in	r29, 0x3e	; 62
+ 43e:	ff cf       	rjmp	.-2      	; 0x43e <main+0x8>
+
+00000440 <_exit>:
+ 440:	f8 94       	cli
+
+00000442 <__stop_program>:
+ 442:	ff cf       	rjmp	.-2      	; 0x442 <__stop_program>
