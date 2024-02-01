@@ -1,0 +1,8 @@
+LCD_interface.c:11:13:waitMs	24	static
+LCD_interface.c:20:6:LCD_init	16	static
+LCD_interface.c:66:6:LCD_SEND_COMMAND	16	static
+LCD_interface.c:87:6:LCD_SEND_DATA_8bit	16	static
+LCD_interface.c:107:6:LCD_SEND_NUMBER_4Digits	16	static
+LCD_interface.c:122:6:LCD_SEND_NUMBER	32	static
+LCD_interface.c:146:6:LCD_Goto_XY	16	static
+LCD_interface.c:160:6:LCD_SEND_STRING	24	static
