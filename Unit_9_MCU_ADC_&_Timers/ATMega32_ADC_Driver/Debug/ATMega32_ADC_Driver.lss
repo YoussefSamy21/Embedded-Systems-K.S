@@ -1,0 +1,165 @@
+
+ATMega32_ADC_Driver.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000ea  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000002  00800060  00800060  0000015e  2**0
+                  ALLOC
+  2 .stab         000002f4  00000000  00000000  00000160  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      00000584  00000000  00000000  00000454  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	29 c0       	rjmp	.+82     	; 0x54 <__ctors_end>
+   2:	00 00       	nop
+   4:	37 c0       	rjmp	.+110    	; 0x74 <__bad_interrupt>
+   6:	00 00       	nop
+   8:	35 c0       	rjmp	.+106    	; 0x74 <__bad_interrupt>
+   a:	00 00       	nop
+   c:	33 c0       	rjmp	.+102    	; 0x74 <__bad_interrupt>
+   e:	00 00       	nop
+  10:	31 c0       	rjmp	.+98     	; 0x74 <__bad_interrupt>
+  12:	00 00       	nop
+  14:	2f c0       	rjmp	.+94     	; 0x74 <__bad_interrupt>
+  16:	00 00       	nop
+  18:	2d c0       	rjmp	.+90     	; 0x74 <__bad_interrupt>
+  1a:	00 00       	nop
+  1c:	2b c0       	rjmp	.+86     	; 0x74 <__bad_interrupt>
+  1e:	00 00       	nop
+  20:	29 c0       	rjmp	.+82     	; 0x74 <__bad_interrupt>
+  22:	00 00       	nop
+  24:	27 c0       	rjmp	.+78     	; 0x74 <__bad_interrupt>
+  26:	00 00       	nop
+  28:	25 c0       	rjmp	.+74     	; 0x74 <__bad_interrupt>
+  2a:	00 00       	nop
+  2c:	23 c0       	rjmp	.+70     	; 0x74 <__bad_interrupt>
+  2e:	00 00       	nop
+  30:	21 c0       	rjmp	.+66     	; 0x74 <__bad_interrupt>
+  32:	00 00       	nop
+  34:	1f c0       	rjmp	.+62     	; 0x74 <__bad_interrupt>
+  36:	00 00       	nop
+  38:	1d c0       	rjmp	.+58     	; 0x74 <__bad_interrupt>
+  3a:	00 00       	nop
+  3c:	1b c0       	rjmp	.+54     	; 0x74 <__bad_interrupt>
+  3e:	00 00       	nop
+  40:	1a c0       	rjmp	.+52     	; 0x76 <__vector_16>
+  42:	00 00       	nop
+  44:	17 c0       	rjmp	.+46     	; 0x74 <__bad_interrupt>
+  46:	00 00       	nop
+  48:	15 c0       	rjmp	.+42     	; 0x74 <__bad_interrupt>
+  4a:	00 00       	nop
+  4c:	13 c0       	rjmp	.+38     	; 0x74 <__bad_interrupt>
+  4e:	00 00       	nop
+  50:	11 c0       	rjmp	.+34     	; 0x74 <__bad_interrupt>
+	...
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_clear_bss>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	01 c0       	rjmp	.+2      	; 0x6a <.do_clear_bss_start>
+
+00000068 <.do_clear_bss_loop>:
+  68:	1d 92       	st	X+, r1
+
+0000006a <.do_clear_bss_start>:
+  6a:	a2 36       	cpi	r26, 0x62	; 98
+  6c:	b1 07       	cpc	r27, r17
+  6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
+  70:	35 d0       	rcall	.+106    	; 0xdc <main>
+  72:	39 c0       	rjmp	.+114    	; 0xe6 <_exit>
+
+00000074 <__bad_interrupt>:
+  74:	c5 cf       	rjmp	.-118    	; 0x0 <__vectors>
+
+00000076 <__vector_16>:
+void ADC_SetCallBack(void(*LocalPtr)(void))
+{
+	ADC_Fptr = LocalPtr;
+}
+ISR(ADC_vect)
+{
+  76:	1f 92       	push	r1
+  78:	0f 92       	push	r0
+  7a:	0f b6       	in	r0, 0x3f	; 63
+  7c:	0f 92       	push	r0
+  7e:	11 24       	eor	r1, r1
+  80:	2f 93       	push	r18
+  82:	3f 93       	push	r19
+  84:	4f 93       	push	r20
+  86:	5f 93       	push	r21
+  88:	6f 93       	push	r22
+  8a:	7f 93       	push	r23
+  8c:	8f 93       	push	r24
+  8e:	9f 93       	push	r25
+  90:	af 93       	push	r26
+  92:	bf 93       	push	r27
+  94:	ef 93       	push	r30
+  96:	ff 93       	push	r31
+  98:	df 93       	push	r29
+  9a:	cf 93       	push	r28
+  9c:	cd b7       	in	r28, 0x3d	; 61
+  9e:	de b7       	in	r29, 0x3e	; 62
+	if(ADC_Fptr != NULLPTR)
+  a0:	80 91 60 00 	lds	r24, 0x0060
+  a4:	90 91 61 00 	lds	r25, 0x0061
+  a8:	00 97       	sbiw	r24, 0x00	; 0
+  aa:	29 f0       	breq	.+10     	; 0xb6 <__vector_16+0x40>
+	{
+		ADC_Fptr();
+  ac:	e0 91 60 00 	lds	r30, 0x0060
+  b0:	f0 91 61 00 	lds	r31, 0x0061
+  b4:	09 95       	icall
+	}
+}
+  b6:	cf 91       	pop	r28
+  b8:	df 91       	pop	r29
+  ba:	ff 91       	pop	r31
+  bc:	ef 91       	pop	r30
+  be:	bf 91       	pop	r27
+  c0:	af 91       	pop	r26
+  c2:	9f 91       	pop	r25
+  c4:	8f 91       	pop	r24
+  c6:	7f 91       	pop	r23
+  c8:	6f 91       	pop	r22
+  ca:	5f 91       	pop	r21
+  cc:	4f 91       	pop	r20
+  ce:	3f 91       	pop	r19
+  d0:	2f 91       	pop	r18
+  d2:	0f 90       	pop	r0
+  d4:	0f be       	out	0x3f, r0	; 63
+  d6:	0f 90       	pop	r0
+  d8:	1f 90       	pop	r1
+  da:	18 95       	reti
+
+000000dc <main>:
+
+
+#include "ADC_interface.h"
+
+void main()
+{
+  dc:	df 93       	push	r29
+  de:	cf 93       	push	r28
+  e0:	cd b7       	in	r28, 0x3d	; 61
+  e2:	de b7       	in	r29, 0x3e	; 62
+  e4:	ff cf       	rjmp	.-2      	; 0xe4 <main+0x8>
+
+000000e6 <_exit>:
+  e6:	f8 94       	cli
+
+000000e8 <__stop_program>:
+  e8:	ff cf       	rjmp	.-2      	; 0xe8 <__stop_program>
