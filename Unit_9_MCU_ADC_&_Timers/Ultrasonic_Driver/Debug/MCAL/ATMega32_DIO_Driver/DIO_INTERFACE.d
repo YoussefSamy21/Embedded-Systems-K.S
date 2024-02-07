@@ -1,0 +1,15 @@
+MCAL/ATMega32_DIO_Driver/DIO_INTERFACE.o \
+  MCAL/ATMega32_DIO_Driver/DIO_INTERFACE.o:  \
+ ../MCAL/ATMega32_DIO_Driver/DIO_INTERFACE.c \
+  ../MCAL/ATMega32_DIO_Driver/DIO_INTERFACE.h \
+  ../MCAL/ATMega32_DIO_Driver/../Utils/STD_TYPES.h \
+  ../MCAL/ATMega32_DIO_Driver/../Utils/STD_LIBRARY.h \
+  ../MCAL/ATMega32_DIO_Driver/DIO_REGISTERMAP.h
+
+../MCAL/ATMega32_DIO_Driver/DIO_INTERFACE.h:
+
+../MCAL/ATMega32_DIO_Driver/../Utils/STD_TYPES.h:
+
+../MCAL/ATMega32_DIO_Driver/../Utils/STD_LIBRARY.h:
+
+../MCAL/ATMega32_DIO_Driver/DIO_REGISTERMAP.h:
