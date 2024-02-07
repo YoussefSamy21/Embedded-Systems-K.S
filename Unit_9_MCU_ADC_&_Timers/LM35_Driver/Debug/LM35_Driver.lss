@@ -1,0 +1,609 @@
+
+LM35_Driver.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000003a8  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000002  00800060  00800060  0000041c  2**0
+                  ALLOC
+  2 .stab         00000768  00000000  00000000  0000041c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      0000062c  00000000  00000000  00000b84  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   8:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  10:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  14:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  18:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  1c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  20:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  24:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  28:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  2c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  30:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  34:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  38:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  3c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  40:	0c 94 08 01 	jmp	0x210	; 0x210 <__vector_16>
+  44:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  48:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  4c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  50:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_clear_bss>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	01 c0       	rjmp	.+2      	; 0x6a <.do_clear_bss_start>
+
+00000068 <.do_clear_bss_loop>:
+  68:	1d 92       	st	X+, r1
+
+0000006a <.do_clear_bss_start>:
+  6a:	a2 36       	cpi	r26, 0x62	; 98
+  6c:	b1 07       	cpc	r27, r17
+  6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
+  70:	0e 94 b9 01 	call	0x372	; 0x372 <main>
+  74:	0c 94 d2 01 	jmp	0x3a4	; 0x3a4 <_exit>
+
+00000078 <__bad_interrupt>:
+  78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000007c <ADC_INIT>:
+#include "ADC_interface.h"
+
+static void(*ADC_Fptr)(void) = NULLPTR;
+
+void ADC_INIT(ADC_Vref_type vref, ADC_SCALER_type scaler)
+{
+  7c:	df 93       	push	r29
+  7e:	cf 93       	push	r28
+  80:	00 d0       	rcall	.+0      	; 0x82 <ADC_INIT+0x6>
+  82:	00 d0       	rcall	.+0      	; 0x84 <ADC_INIT+0x8>
+  84:	cd b7       	in	r28, 0x3d	; 61
+  86:	de b7       	in	r29, 0x3e	; 62
+  88:	89 83       	std	Y+1, r24	; 0x01
+  8a:	6a 83       	std	Y+2, r22	; 0x02
+	// *****Vref******
+	switch(vref)
+  8c:	89 81       	ldd	r24, Y+1	; 0x01
+  8e:	28 2f       	mov	r18, r24
+  90:	30 e0       	ldi	r19, 0x00	; 0
+  92:	3c 83       	std	Y+4, r19	; 0x04
+  94:	2b 83       	std	Y+3, r18	; 0x03
+  96:	8b 81       	ldd	r24, Y+3	; 0x03
+  98:	9c 81       	ldd	r25, Y+4	; 0x04
+  9a:	81 30       	cpi	r24, 0x01	; 1
+  9c:	91 05       	cpc	r25, r1
+  9e:	c1 f0       	breq	.+48     	; 0xd0 <ADC_INIT+0x54>
+  a0:	2b 81       	ldd	r18, Y+3	; 0x03
+  a2:	3c 81       	ldd	r19, Y+4	; 0x04
+  a4:	22 30       	cpi	r18, 0x02	; 2
+  a6:	31 05       	cpc	r19, r1
+  a8:	11 f1       	breq	.+68     	; 0xee <ADC_INIT+0x72>
+  aa:	8b 81       	ldd	r24, Y+3	; 0x03
+  ac:	9c 81       	ldd	r25, Y+4	; 0x04
+  ae:	00 97       	sbiw	r24, 0x00	; 0
+  b0:	61 f5       	brne	.+88     	; 0x10a <ADC_INIT+0x8e>
+	{
+	case VREF_AVCC:
+		CLEAR_BIT(ADMUX,REFS1);
+  b2:	a7 e2       	ldi	r26, 0x27	; 39
+  b4:	b0 e0       	ldi	r27, 0x00	; 0
+  b6:	e7 e2       	ldi	r30, 0x27	; 39
+  b8:	f0 e0       	ldi	r31, 0x00	; 0
+  ba:	80 81       	ld	r24, Z
+  bc:	8f 77       	andi	r24, 0x7F	; 127
+  be:	8c 93       	st	X, r24
+		SET_BIT(ADMUX,REFS0);
+  c0:	a7 e2       	ldi	r26, 0x27	; 39
+  c2:	b0 e0       	ldi	r27, 0x00	; 0
+  c4:	e7 e2       	ldi	r30, 0x27	; 39
+  c6:	f0 e0       	ldi	r31, 0x00	; 0
+  c8:	80 81       	ld	r24, Z
+  ca:	80 64       	ori	r24, 0x40	; 64
+  cc:	8c 93       	st	X, r24
+  ce:	1d c0       	rjmp	.+58     	; 0x10a <ADC_INIT+0x8e>
+		break;
+
+	case VREF_AREF:
+		CLEAR_BIT(ADMUX,REFS1);
+  d0:	a7 e2       	ldi	r26, 0x27	; 39
+  d2:	b0 e0       	ldi	r27, 0x00	; 0
+  d4:	e7 e2       	ldi	r30, 0x27	; 39
+  d6:	f0 e0       	ldi	r31, 0x00	; 0
+  d8:	80 81       	ld	r24, Z
+  da:	8f 77       	andi	r24, 0x7F	; 127
+  dc:	8c 93       	st	X, r24
+		CLEAR_BIT(ADMUX,REFS0);
+  de:	a7 e2       	ldi	r26, 0x27	; 39
+  e0:	b0 e0       	ldi	r27, 0x00	; 0
+  e2:	e7 e2       	ldi	r30, 0x27	; 39
+  e4:	f0 e0       	ldi	r31, 0x00	; 0
+  e6:	80 81       	ld	r24, Z
+  e8:	8f 7b       	andi	r24, 0xBF	; 191
+  ea:	8c 93       	st	X, r24
+  ec:	0e c0       	rjmp	.+28     	; 0x10a <ADC_INIT+0x8e>
+		break;
+	case VREF_256:
+		SET_BIT(ADMUX,REFS1);
+  ee:	a7 e2       	ldi	r26, 0x27	; 39
+  f0:	b0 e0       	ldi	r27, 0x00	; 0
+  f2:	e7 e2       	ldi	r30, 0x27	; 39
+  f4:	f0 e0       	ldi	r31, 0x00	; 0
+  f6:	80 81       	ld	r24, Z
+  f8:	80 68       	ori	r24, 0x80	; 128
+  fa:	8c 93       	st	X, r24
+		SET_BIT(ADMUX,REFS0);
+  fc:	a7 e2       	ldi	r26, 0x27	; 39
+  fe:	b0 e0       	ldi	r27, 0x00	; 0
+ 100:	e7 e2       	ldi	r30, 0x27	; 39
+ 102:	f0 e0       	ldi	r31, 0x00	; 0
+ 104:	80 81       	ld	r24, Z
+ 106:	80 64       	ori	r24, 0x40	; 64
+ 108:	8c 93       	st	X, r24
+		break;
+	}
+
+	ADCSRA = ADCSRA & 0xF8;
+ 10a:	a6 e2       	ldi	r26, 0x26	; 38
+ 10c:	b0 e0       	ldi	r27, 0x00	; 0
+ 10e:	e6 e2       	ldi	r30, 0x26	; 38
+ 110:	f0 e0       	ldi	r31, 0x00	; 0
+ 112:	80 81       	ld	r24, Z
+ 114:	88 7f       	andi	r24, 0xF8	; 248
+ 116:	8c 93       	st	X, r24
+	ADCSRA = ADCSRA | scaler;
+ 118:	a6 e2       	ldi	r26, 0x26	; 38
+ 11a:	b0 e0       	ldi	r27, 0x00	; 0
+ 11c:	e6 e2       	ldi	r30, 0x26	; 38
+ 11e:	f0 e0       	ldi	r31, 0x00	; 0
+ 120:	90 81       	ld	r25, Z
+ 122:	8a 81       	ldd	r24, Y+2	; 0x02
+ 124:	89 2b       	or	r24, r25
+ 126:	8c 93       	st	X, r24
+
+	// *****Right adjust******
+	CLEAR_BIT(ADMUX,ADLAR);
+ 128:	a7 e2       	ldi	r26, 0x27	; 39
+ 12a:	b0 e0       	ldi	r27, 0x00	; 0
+ 12c:	e7 e2       	ldi	r30, 0x27	; 39
+ 12e:	f0 e0       	ldi	r31, 0x00	; 0
+ 130:	80 81       	ld	r24, Z
+ 132:	8f 7d       	andi	r24, 0xDF	; 223
+ 134:	8c 93       	st	X, r24
+
+	// *****Enable******
+	SET_BIT(ADCSRA,ADEN);
+ 136:	a6 e2       	ldi	r26, 0x26	; 38
+ 138:	b0 e0       	ldi	r27, 0x00	; 0
+ 13a:	e6 e2       	ldi	r30, 0x26	; 38
+ 13c:	f0 e0       	ldi	r31, 0x00	; 0
+ 13e:	80 81       	ld	r24, Z
+ 140:	80 68       	ori	r24, 0x80	; 128
+ 142:	8c 93       	st	X, r24
+}
+ 144:	0f 90       	pop	r0
+ 146:	0f 90       	pop	r0
+ 148:	0f 90       	pop	r0
+ 14a:	0f 90       	pop	r0
+ 14c:	cf 91       	pop	r28
+ 14e:	df 91       	pop	r29
+ 150:	08 95       	ret
+
+00000152 <ADC_START_CONVERSION>:
+
+/**************************************************************/
+
+uint16 ADC_START_CONVERSION(ADC_CHANNEL_type channel)
+{
+ 152:	df 93       	push	r29
+ 154:	cf 93       	push	r28
+ 156:	0f 92       	push	r0
+ 158:	cd b7       	in	r28, 0x3d	; 61
+ 15a:	de b7       	in	r29, 0x3e	; 62
+ 15c:	89 83       	std	Y+1, r24	; 0x01
+	// *****Select Channel******
+	ADMUX = ADMUX & 0xE0;	// same idea as the prescaler selection clearing the least 5 bits to avoid overwriting channels
+ 15e:	a7 e2       	ldi	r26, 0x27	; 39
+ 160:	b0 e0       	ldi	r27, 0x00	; 0
+ 162:	e7 e2       	ldi	r30, 0x27	; 39
+ 164:	f0 e0       	ldi	r31, 0x00	; 0
+ 166:	80 81       	ld	r24, Z
+ 168:	80 7e       	andi	r24, 0xE0	; 224
+ 16a:	8c 93       	st	X, r24
+	ADMUX = ADMUX | channel;
+ 16c:	a7 e2       	ldi	r26, 0x27	; 39
+ 16e:	b0 e0       	ldi	r27, 0x00	; 0
+ 170:	e7 e2       	ldi	r30, 0x27	; 39
+ 172:	f0 e0       	ldi	r31, 0x00	; 0
+ 174:	90 81       	ld	r25, Z
+ 176:	89 81       	ldd	r24, Y+1	; 0x01
+ 178:	89 2b       	or	r24, r25
+ 17a:	8c 93       	st	X, r24
+
+	// *****Start Conversion*****
+	SET_BIT(ADCSRA,ADSC);
+ 17c:	a6 e2       	ldi	r26, 0x26	; 38
+ 17e:	b0 e0       	ldi	r27, 0x00	; 0
+ 180:	e6 e2       	ldi	r30, 0x26	; 38
+ 182:	f0 e0       	ldi	r31, 0x00	; 0
+ 184:	80 81       	ld	r24, Z
+ 186:	80 64       	ori	r24, 0x40	; 64
+ 188:	8c 93       	st	X, r24
+
+	while(GET_BIT(ADCSRA,ADSC)); //When the conversion is complete, it returns to zero
+ 18a:	e6 e2       	ldi	r30, 0x26	; 38
+ 18c:	f0 e0       	ldi	r31, 0x00	; 0
+ 18e:	80 81       	ld	r24, Z
+ 190:	82 95       	swap	r24
+ 192:	86 95       	lsr	r24
+ 194:	86 95       	lsr	r24
+ 196:	83 70       	andi	r24, 0x03	; 3
+ 198:	88 2f       	mov	r24, r24
+ 19a:	90 e0       	ldi	r25, 0x00	; 0
+ 19c:	81 70       	andi	r24, 0x01	; 1
+ 19e:	90 70       	andi	r25, 0x00	; 0
+ 1a0:	88 23       	and	r24, r24
+ 1a2:	99 f7       	brne	.-26     	; 0x18a <ADC_START_CONVERSION+0x38>
+
+	return ADC;
+ 1a4:	e4 e2       	ldi	r30, 0x24	; 36
+ 1a6:	f0 e0       	ldi	r31, 0x00	; 0
+ 1a8:	80 81       	ld	r24, Z
+ 1aa:	91 81       	ldd	r25, Z+1	; 0x01
+
+}
+ 1ac:	0f 90       	pop	r0
+ 1ae:	cf 91       	pop	r28
+ 1b0:	df 91       	pop	r29
+ 1b2:	08 95       	ret
+
+000001b4 <ADC_Interrupt_Enable>:
+
+void ADC_Interrupt_Enable()
+{
+ 1b4:	df 93       	push	r29
+ 1b6:	cf 93       	push	r28
+ 1b8:	cd b7       	in	r28, 0x3d	; 61
+ 1ba:	de b7       	in	r29, 0x3e	; 62
+	SET_BIT(ADCSRA,ADIE);
+ 1bc:	a6 e2       	ldi	r26, 0x26	; 38
+ 1be:	b0 e0       	ldi	r27, 0x00	; 0
+ 1c0:	e6 e2       	ldi	r30, 0x26	; 38
+ 1c2:	f0 e0       	ldi	r31, 0x00	; 0
+ 1c4:	80 81       	ld	r24, Z
+ 1c6:	88 60       	ori	r24, 0x08	; 8
+ 1c8:	8c 93       	st	X, r24
+}
+ 1ca:	cf 91       	pop	r28
+ 1cc:	df 91       	pop	r29
+ 1ce:	08 95       	ret
+
+000001d0 <ADC_Interrupt_Disable>:
+void ADC_Interrupt_Disable()
+{
+ 1d0:	df 93       	push	r29
+ 1d2:	cf 93       	push	r28
+ 1d4:	cd b7       	in	r28, 0x3d	; 61
+ 1d6:	de b7       	in	r29, 0x3e	; 62
+	CLEAR_BIT(ADCSRA,ADIE);
+ 1d8:	a6 e2       	ldi	r26, 0x26	; 38
+ 1da:	b0 e0       	ldi	r27, 0x00	; 0
+ 1dc:	e6 e2       	ldi	r30, 0x26	; 38
+ 1de:	f0 e0       	ldi	r31, 0x00	; 0
+ 1e0:	80 81       	ld	r24, Z
+ 1e2:	87 7f       	andi	r24, 0xF7	; 247
+ 1e4:	8c 93       	st	X, r24
+}
+ 1e6:	cf 91       	pop	r28
+ 1e8:	df 91       	pop	r29
+ 1ea:	08 95       	ret
+
+000001ec <ADC_SetCallBack>:
+
+void ADC_SetCallBack(void(*LocalPtr)(void))
+{
+ 1ec:	df 93       	push	r29
+ 1ee:	cf 93       	push	r28
+ 1f0:	00 d0       	rcall	.+0      	; 0x1f2 <ADC_SetCallBack+0x6>
+ 1f2:	cd b7       	in	r28, 0x3d	; 61
+ 1f4:	de b7       	in	r29, 0x3e	; 62
+ 1f6:	9a 83       	std	Y+2, r25	; 0x02
+ 1f8:	89 83       	std	Y+1, r24	; 0x01
+	ADC_Fptr = LocalPtr;
+ 1fa:	89 81       	ldd	r24, Y+1	; 0x01
+ 1fc:	9a 81       	ldd	r25, Y+2	; 0x02
+ 1fe:	90 93 61 00 	sts	0x0061, r25
+ 202:	80 93 60 00 	sts	0x0060, r24
+}
+ 206:	0f 90       	pop	r0
+ 208:	0f 90       	pop	r0
+ 20a:	cf 91       	pop	r28
+ 20c:	df 91       	pop	r29
+ 20e:	08 95       	ret
+
+00000210 <__vector_16>:
+ISR(ADC_vect)
+{
+ 210:	1f 92       	push	r1
+ 212:	0f 92       	push	r0
+ 214:	0f b6       	in	r0, 0x3f	; 63
+ 216:	0f 92       	push	r0
+ 218:	11 24       	eor	r1, r1
+ 21a:	2f 93       	push	r18
+ 21c:	3f 93       	push	r19
+ 21e:	4f 93       	push	r20
+ 220:	5f 93       	push	r21
+ 222:	6f 93       	push	r22
+ 224:	7f 93       	push	r23
+ 226:	8f 93       	push	r24
+ 228:	9f 93       	push	r25
+ 22a:	af 93       	push	r26
+ 22c:	bf 93       	push	r27
+ 22e:	ef 93       	push	r30
+ 230:	ff 93       	push	r31
+ 232:	df 93       	push	r29
+ 234:	cf 93       	push	r28
+ 236:	cd b7       	in	r28, 0x3d	; 61
+ 238:	de b7       	in	r29, 0x3e	; 62
+	if(ADC_Fptr != NULLPTR)
+ 23a:	80 91 60 00 	lds	r24, 0x0060
+ 23e:	90 91 61 00 	lds	r25, 0x0061
+ 242:	00 97       	sbiw	r24, 0x00	; 0
+ 244:	29 f0       	breq	.+10     	; 0x250 <__vector_16+0x40>
+	{
+		ADC_Fptr();
+ 246:	e0 91 60 00 	lds	r30, 0x0060
+ 24a:	f0 91 61 00 	lds	r31, 0x0061
+ 24e:	09 95       	icall
+	}
+}
+ 250:	cf 91       	pop	r28
+ 252:	df 91       	pop	r29
+ 254:	ff 91       	pop	r31
+ 256:	ef 91       	pop	r30
+ 258:	bf 91       	pop	r27
+ 25a:	af 91       	pop	r26
+ 25c:	9f 91       	pop	r25
+ 25e:	8f 91       	pop	r24
+ 260:	7f 91       	pop	r23
+ 262:	6f 91       	pop	r22
+ 264:	5f 91       	pop	r21
+ 266:	4f 91       	pop	r20
+ 268:	3f 91       	pop	r19
+ 26a:	2f 91       	pop	r18
+ 26c:	0f 90       	pop	r0
+ 26e:	0f be       	out	0x3f, r0	; 63
+ 270:	0f 90       	pop	r0
+ 272:	1f 90       	pop	r1
+ 274:	18 95       	reti
+
+00000276 <ADC_GetRead_NoBlock>:
+
+
+// Periodic Check (No Block) , the aim of this function to not block or delaying the main function
+uint8 ADC_GetRead_NoBlock(ADC_CHANNEL_type channel , uint16 *ptr_data)
+{
+ 276:	df 93       	push	r29
+ 278:	cf 93       	push	r28
+ 27a:	00 d0       	rcall	.+0      	; 0x27c <ADC_GetRead_NoBlock+0x6>
+ 27c:	00 d0       	rcall	.+0      	; 0x27e <ADC_GetRead_NoBlock+0x8>
+ 27e:	cd b7       	in	r28, 0x3d	; 61
+ 280:	de b7       	in	r29, 0x3e	; 62
+ 282:	8a 83       	std	Y+2, r24	; 0x02
+ 284:	7c 83       	std	Y+4, r23	; 0x04
+ 286:	6b 83       	std	Y+3, r22	; 0x03
+	uint8 status;
+	//select channel
+	ADMUX = ADMUX & 0xE0;
+ 288:	a7 e2       	ldi	r26, 0x27	; 39
+ 28a:	b0 e0       	ldi	r27, 0x00	; 0
+ 28c:	e7 e2       	ldi	r30, 0x27	; 39
+ 28e:	f0 e0       	ldi	r31, 0x00	; 0
+ 290:	80 81       	ld	r24, Z
+ 292:	80 7e       	andi	r24, 0xE0	; 224
+ 294:	8c 93       	st	X, r24
+	ADMUX = ADMUX | channel;
+ 296:	a7 e2       	ldi	r26, 0x27	; 39
+ 298:	b0 e0       	ldi	r27, 0x00	; 0
+ 29a:	e7 e2       	ldi	r30, 0x27	; 39
+ 29c:	f0 e0       	ldi	r31, 0x00	; 0
+ 29e:	90 81       	ld	r25, Z
+ 2a0:	8a 81       	ldd	r24, Y+2	; 0x02
+ 2a2:	89 2b       	or	r24, r25
+ 2a4:	8c 93       	st	X, r24
+	//Start Conversion
+	SET_BIT(ADCSRA,ADSC);
+ 2a6:	a6 e2       	ldi	r26, 0x26	; 38
+ 2a8:	b0 e0       	ldi	r27, 0x00	; 0
+ 2aa:	e6 e2       	ldi	r30, 0x26	; 38
+ 2ac:	f0 e0       	ldi	r31, 0x00	; 0
+ 2ae:	80 81       	ld	r24, Z
+ 2b0:	80 64       	ori	r24, 0x40	; 64
+ 2b2:	8c 93       	st	X, r24
+	if(GET_BIT(ADCSRA,ADSC)== 0) //When the conversion is complete, it returns to zero
+ 2b4:	e6 e2       	ldi	r30, 0x26	; 38
+ 2b6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2b8:	80 81       	ld	r24, Z
+ 2ba:	82 95       	swap	r24
+ 2bc:	86 95       	lsr	r24
+ 2be:	86 95       	lsr	r24
+ 2c0:	83 70       	andi	r24, 0x03	; 3
+ 2c2:	88 2f       	mov	r24, r24
+ 2c4:	90 e0       	ldi	r25, 0x00	; 0
+ 2c6:	81 70       	andi	r24, 0x01	; 1
+ 2c8:	90 70       	andi	r25, 0x00	; 0
+ 2ca:	00 97       	sbiw	r24, 0x00	; 0
+ 2cc:	59 f4       	brne	.+22     	; 0x2e4 <ADC_GetRead_NoBlock+0x6e>
+	{
+		*ptr_data = ADC;
+ 2ce:	e4 e2       	ldi	r30, 0x24	; 36
+ 2d0:	f0 e0       	ldi	r31, 0x00	; 0
+ 2d2:	80 81       	ld	r24, Z
+ 2d4:	91 81       	ldd	r25, Z+1	; 0x01
+ 2d6:	eb 81       	ldd	r30, Y+3	; 0x03
+ 2d8:	fc 81       	ldd	r31, Y+4	; 0x04
+ 2da:	91 83       	std	Z+1, r25	; 0x01
+ 2dc:	80 83       	st	Z, r24
+		status = 1;
+ 2de:	81 e0       	ldi	r24, 0x01	; 1
+ 2e0:	89 83       	std	Y+1, r24	; 0x01
+ 2e2:	01 c0       	rjmp	.+2      	; 0x2e6 <ADC_GetRead_NoBlock+0x70>
+	}
+	else
+	{
+		status = 0;
+ 2e4:	19 82       	std	Y+1, r1	; 0x01
+	}
+	return status;
+ 2e6:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 2e8:	0f 90       	pop	r0
+ 2ea:	0f 90       	pop	r0
+ 2ec:	0f 90       	pop	r0
+ 2ee:	0f 90       	pop	r0
+ 2f0:	cf 91       	pop	r28
+ 2f2:	df 91       	pop	r29
+ 2f4:	08 95       	ret
+
+000002f6 <LM35_INIT>:
+ */
+
+#include "LM35.h"
+
+void LM35_INIT()
+{
+ 2f6:	df 93       	push	r29
+ 2f8:	cf 93       	push	r28
+ 2fa:	cd b7       	in	r28, 0x3d	; 61
+ 2fc:	de b7       	in	r29, 0x3e	; 62
+	ADC_INIT(LM35_Vref , LM35_Scalar);
+ 2fe:	80 e0       	ldi	r24, 0x00	; 0
+ 300:	62 e0       	ldi	r22, 0x02	; 2
+ 302:	0e 94 3e 00 	call	0x7c	; 0x7c <ADC_INIT>
+}
+ 306:	cf 91       	pop	r28
+ 308:	df 91       	pop	r29
+ 30a:	08 95       	ret
+
+0000030c <LM35_GetTemp>:
+
+
+uint16 LM35_GetTemp()
+{
+ 30c:	df 93       	push	r29
+ 30e:	cf 93       	push	r28
+ 310:	00 d0       	rcall	.+0      	; 0x312 <LM35_GetTemp+0x6>
+ 312:	00 d0       	rcall	.+0      	; 0x314 <LM35_GetTemp+0x8>
+ 314:	00 d0       	rcall	.+0      	; 0x316 <LM35_GetTemp+0xa>
+ 316:	cd b7       	in	r28, 0x3d	; 61
+ 318:	de b7       	in	r29, 0x3e	; 62
+	uint16 temp , adc , volt;
+	adc = ADC_START_CONVERSION(LM35_CH);
+ 31a:	80 e0       	ldi	r24, 0x00	; 0
+ 31c:	0e 94 a9 00 	call	0x152	; 0x152 <ADC_START_CONVERSION>
+ 320:	9c 83       	std	Y+4, r25	; 0x04
+ 322:	8b 83       	std	Y+3, r24	; 0x03
+	volt = (uint32)(adc*5000) / 1024; // mv
+ 324:	2b 81       	ldd	r18, Y+3	; 0x03
+ 326:	3c 81       	ldd	r19, Y+4	; 0x04
+ 328:	88 e8       	ldi	r24, 0x88	; 136
+ 32a:	93 e1       	ldi	r25, 0x13	; 19
+ 32c:	ac 01       	movw	r20, r24
+ 32e:	24 9f       	mul	r18, r20
+ 330:	c0 01       	movw	r24, r0
+ 332:	25 9f       	mul	r18, r21
+ 334:	90 0d       	add	r25, r0
+ 336:	34 9f       	mul	r19, r20
+ 338:	90 0d       	add	r25, r0
+ 33a:	11 24       	eor	r1, r1
+ 33c:	89 2f       	mov	r24, r25
+ 33e:	99 27       	eor	r25, r25
+ 340:	86 95       	lsr	r24
+ 342:	86 95       	lsr	r24
+ 344:	9a 83       	std	Y+2, r25	; 0x02
+ 346:	89 83       	std	Y+1, r24	; 0x01
+	temp = volt / 10 ;
+ 348:	89 81       	ldd	r24, Y+1	; 0x01
+ 34a:	9a 81       	ldd	r25, Y+2	; 0x02
+ 34c:	2a e0       	ldi	r18, 0x0A	; 10
+ 34e:	30 e0       	ldi	r19, 0x00	; 0
+ 350:	b9 01       	movw	r22, r18
+ 352:	0e 94 be 01 	call	0x37c	; 0x37c <__udivmodhi4>
+ 356:	cb 01       	movw	r24, r22
+ 358:	9e 83       	std	Y+6, r25	; 0x06
+ 35a:	8d 83       	std	Y+5, r24	; 0x05
+	return temp;
+ 35c:	8d 81       	ldd	r24, Y+5	; 0x05
+ 35e:	9e 81       	ldd	r25, Y+6	; 0x06
+}
+ 360:	26 96       	adiw	r28, 0x06	; 6
+ 362:	0f b6       	in	r0, 0x3f	; 63
+ 364:	f8 94       	cli
+ 366:	de bf       	out	0x3e, r29	; 62
+ 368:	0f be       	out	0x3f, r0	; 63
+ 36a:	cd bf       	out	0x3d, r28	; 61
+ 36c:	cf 91       	pop	r28
+ 36e:	df 91       	pop	r29
+ 370:	08 95       	ret
+
+00000372 <main>:
+ *      Author: youssef
+ */
+
+#include "LM35.h"
+void main()
+{
+ 372:	df 93       	push	r29
+ 374:	cf 93       	push	r28
+ 376:	cd b7       	in	r28, 0x3d	; 61
+ 378:	de b7       	in	r29, 0x3e	; 62
+ 37a:	ff cf       	rjmp	.-2      	; 0x37a <main+0x8>
+
+0000037c <__udivmodhi4>:
+ 37c:	aa 1b       	sub	r26, r26
+ 37e:	bb 1b       	sub	r27, r27
+ 380:	51 e1       	ldi	r21, 0x11	; 17
+ 382:	07 c0       	rjmp	.+14     	; 0x392 <__udivmodhi4_ep>
+
+00000384 <__udivmodhi4_loop>:
+ 384:	aa 1f       	adc	r26, r26
+ 386:	bb 1f       	adc	r27, r27
+ 388:	a6 17       	cp	r26, r22
+ 38a:	b7 07       	cpc	r27, r23
+ 38c:	10 f0       	brcs	.+4      	; 0x392 <__udivmodhi4_ep>
+ 38e:	a6 1b       	sub	r26, r22
+ 390:	b7 0b       	sbc	r27, r23
+
+00000392 <__udivmodhi4_ep>:
+ 392:	88 1f       	adc	r24, r24
+ 394:	99 1f       	adc	r25, r25
+ 396:	5a 95       	dec	r21
+ 398:	a9 f7       	brne	.-22     	; 0x384 <__udivmodhi4_loop>
+ 39a:	80 95       	com	r24
+ 39c:	90 95       	com	r25
+ 39e:	bc 01       	movw	r22, r24
+ 3a0:	cd 01       	movw	r24, r26
+ 3a2:	08 95       	ret
+
+000003a4 <_exit>:
+ 3a4:	f8 94       	cli
+
+000003a6 <__stop_program>:
+ 3a6:	ff cf       	rjmp	.-2      	; 0x3a6 <__stop_program>
