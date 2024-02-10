@@ -1,0 +1,3 @@
+EEPROM.c:10:6:EEPROM_Init	48	static
+EEPROM.c:25:6:EEPROM_Write_nBytes	288	static
+EEPROM.c:40:6:EEPROM_Read_nBytes	32	static
