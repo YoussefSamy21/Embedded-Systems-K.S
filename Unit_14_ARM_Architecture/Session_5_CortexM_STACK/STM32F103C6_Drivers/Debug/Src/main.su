@@ -1,0 +1,10 @@
+main.c:54:10:TaskA	24	static
+main.c:59:10:TaskB	24	static
+main.c:93:6:SVC_Handler	4	static,ignoring_inline_asm
+main.c:104:6:Switch_CPU_Access_Level	16	static,ignoring_inline_asm
+main.c:130:6:MainOS	8	static,ignoring_inline_asm
+main.c:193:6:EXTIB9_CallBack	4	static
+main.c:210:5:main	32	static
+main.c:250:6:HardFault_Handler	4	static
+main.c:255:6:BusFault_Handler	4	static
+main.c:260:6:UsageFault_Handler	4	static
