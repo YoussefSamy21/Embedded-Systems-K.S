@@ -1,0 +1,30 @@
+﻿/*@!Encoding:65001*/
+includes
+{
+  
+}
+
+variables
+{
+  msTimer periodic_timer;
+  const int timer_period = 1000;
+  message ACC_CMD_Message ACC_Status; // Instance from Object
+}
+
+on start
+{
+  write("ECU1: ON");
+  setTimer(periodic_timer , timer_period);
+}
+
+on message Speed_Val_Message
+{
+  write("ECU1: Received Speed from ECU2");
+}
+
+on timer periodic_timer
+{
+  ACC_Status.ACC_Signal.phys = @sysvar :: acc_sys_val;
+  output(ACC_Status);
+  setTimer(periodic_timer , timer_period);
+}
